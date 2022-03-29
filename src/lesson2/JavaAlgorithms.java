@@ -3,6 +3,8 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.util.HashSet;
+
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -97,9 +99,40 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    /*
+    { A[i][0] = 0, i = 0..n;
+    { A[0][j] = 0, i = 0..m;
+    { A[i][j] = 0, first[i] != second[j] : (i != 0, j != 0);
+    { A[i][j] = A[i - 1][j - 1] + 1, first[i] == second[j] : (i != 0, j != 0).
+     */
+    static public String longestCommonSubstring(String first, String second) {
+        if (first.isEmpty() || second.isEmpty()) {
+            return "";
+        }
+        // Пусть twoDimArray[][] = A[][]
+        int[][] twoDimArray = new int[first.length() + 1][second.length() + 1];
+        int index = 0;   // индекс текущего символа в первой строке
+        int maxReps = 0; // максимальное число повторений
+        for (int i = 1; i <= first.length(); i++) {
+            for (int j = 1; j <= second.length(); j++) {
+                if (first.charAt(i - 1) != second.charAt(j - 1)) {
+                    twoDimArray[i][j] = 0;
+                }
+                else {
+                    twoDimArray[i][j] = twoDimArray[i - 1][j - 1] + 1;
+                    if (twoDimArray[i][j] > maxReps) {
+                        maxReps = twoDimArray[i][j];
+                        index = i;
+                    }
+                }
+
+            }
+        }
+        return first.substring(index - maxReps, index);
     }
+    // n = first.length(); m = second.length();
+    // Трудоёмкость (Время) - O(n * m)
+    // Ресурсоёмкость (Память) - O(n * m)
 
     /**
      * Число простых чисел в интервале
@@ -111,7 +144,28 @@ public class JavaAlgorithms {
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
      */
-    static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+    static public int calcPrimesNumber(int limit) { // Решето Эратосфена
+        if (limit <= 1) return 0;
+        HashSet<Integer> noPrimeSet = new HashSet<>();
+        int p = 2;
+        int step = p;
+        while (p * p <= limit) {
+            for (int cycleP = p * p; cycleP <= limit; cycleP += step) {
+                if (cycleP % p == 0) {
+                    noPrimeSet.add(cycleP);
+                }
+            }
+            for (int i = p + 1; p <= limit; i++) {
+                if (!noPrimeSet.contains(i)) {
+                    p = i;
+                    break;
+                }
+            }
+            step = 2 * p;
+        }
+        return limit - noPrimeSet.size() - 1;
     }
+    // n = limit;
+    // Трудоёмкость (Время) - O(n * log(log n))
+    // Ресурсоёмкость (Память) - O(n)
 }
