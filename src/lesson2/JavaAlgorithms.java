@@ -3,8 +3,6 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
-import java.util.HashSet;
-
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -146,24 +144,25 @@ public class JavaAlgorithms {
      */
     static public int calcPrimesNumber(int limit) { // Решето Эратосфена
         if (limit <= 1) return 0;
-        HashSet<Integer> noPrimeSet = new HashSet<>();
         int p = 2;
         int step = p;
+        int numberPrimes = 0;
+        boolean[] primeArray = new boolean[limit + 1]; // limit + 1, т.к. limit включительно
         while (p * p <= limit) {
-            for (int cycleP = p * p; cycleP <= limit; cycleP += step) {
-                if (cycleP % p == 0) {
-                    noPrimeSet.add(cycleP);
+            if (!primeArray[p]) {
+                for (int cycleP = p * p; cycleP <= limit; cycleP += step) {
+                    primeArray[cycleP] = true;
                 }
             }
-            for (int i = p + 1; p <= limit; i++) {
-                if (!noPrimeSet.contains(i)) {
-                    p = i;
-                    break;
-                }
-            }
+            p++;
             step = 2 * p;
         }
-        return limit - noPrimeSet.size() - 1;
+        for (int i = 2; i <= limit; i++) {
+            if (!primeArray[i]) {
+                numberPrimes++;
+            }
+        }
+        return numberPrimes;
     }
     // n = limit;
     // Трудоёмкость (Время) - O(n * log(log n))
