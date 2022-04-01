@@ -102,29 +102,28 @@ public class JavaTasks {
      * 121.3
      */
     static public void sortTemperatures(String inputName, String outputName) throws IOException {
-        FileReader reader = new FileReader(inputName);
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        FileWriter writer = new FileWriter(outputName);
-        String line = bufferedReader.readLine();
-        ArrayList<Integer> listTemp = new ArrayList<>();
-        while (line != null) {
-            listTemp.add((int) (Double.parseDouble(line) * 10));
-            line = bufferedReader.readLine();
+        List<Integer> listTemp = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputName))) {
+            String line = reader.readLine();
+            while (line != null) {
+                listTemp.add((int) (Double.parseDouble(line) * 10));
+                line = reader.readLine();
+            }
         }
-        reader.close();
         int[] arrayTemp = new int[listTemp.size()];
         for (int i = 0; i < arrayTemp.length; i++) {
             arrayTemp[i] = listTemp.get(i);
         }
         Sorts.quickSort(arrayTemp);
-        for (Integer aInt : arrayTemp) {
-            double aDouble = aInt;
-            writer.write(Double.toString(aDouble / 10));
-            writer.write("\n");
+        try (FileWriter writer = new FileWriter(outputName)) {
+            for (Integer aInt : arrayTemp) {
+                double aDouble = aInt;
+                writer.write(Double.toString(aDouble / 10));
+                writer.write("\n");
+            }
         }
-        writer.close();
     }
-    // Трудоёмкость - O(n)
+    // Трудоёмкость - в лучшем случае O(n * log(n)), в худшем O(n^2)
     // Ресурсоёмкость - O(n)
 
 
@@ -158,50 +157,50 @@ public class JavaTasks {
      * 2
      */
     static public void sortSequence(String inputName, String outputName) throws IOException {
-        ArrayList<Integer> listNumbers = new ArrayList<>();
-        HashMap<Integer, Integer> mapNumbers = new HashMap<>();
+        List<Integer> listNumbers = new ArrayList<>();
+        Map<Integer, Integer> mapNumbers = new HashMap<>();
         int maxRepNumber = 0; // Максимально повторяющееся число
         int maxReps = 0;      // Максимальное количество повторений
-        BufferedReader reader = new BufferedReader(new FileReader(inputName));
-        FileWriter writer = new FileWriter(outputName);
-        String line = reader.readLine();
-        // Поиск наиболее повторяющегося числа
-        while (line != null) {
-            int intLine = Integer.parseInt(line);
-            listNumbers.add(intLine);
-            if (mapNumbers.containsKey(intLine)) {
-                int repeats = mapNumbers.get(intLine);
-                mapNumbers.put(intLine, repeats + 1);
-                int newRepeats = mapNumbers.get(intLine);
-                if (newRepeats > maxReps) {
-                    maxReps = newRepeats;
-                    maxRepNumber = intLine;
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputName))) {
+            String line = reader.readLine();
+            // Поиск наиболее повторяющегося числа
+            while (line != null) {
+                int intLine = Integer.parseInt(line);
+                listNumbers.add(intLine);
+                if (mapNumbers.containsKey(intLine)) {
+                    mapNumbers.put(intLine, mapNumbers.get(intLine) + 1);
+                    int newRepeats = mapNumbers.get(intLine);
+                    if (newRepeats > maxReps) {
+                        maxReps = newRepeats;
+                        maxRepNumber = intLine;
+                    }
+                    if (newRepeats == maxReps && intLine < maxRepNumber) {
+                        maxRepNumber = intLine;
+                    }
+                } else {
+                    mapNumbers.put(intLine, 1);
                 }
-                if (newRepeats == maxReps && intLine < maxRepNumber) {
-                    maxRepNumber = intLine;
-                }
-            } else {
-                mapNumbers.put(intLine, 1);
+                line = reader.readLine();
             }
-            line = reader.readLine();
         }
-        // Если файл пустой, то возвращаем также пустой файл
-        if (listNumbers.isEmpty()) {
-            writer.write("");
-            return;
-        }
-        // Запись в файл новый порядок чисел (максимально повторяющееся число после всех остальных)
-        for (Integer number : listNumbers) {
-            if (number != maxRepNumber) {
-                writer.write(String.valueOf(number));
+        try (FileWriter writer = new FileWriter(outputName)) {
+            // Если файл пустой, то возвращаем также пустой файл
+            if (listNumbers.isEmpty()) {
+                writer.write("");
+                return;
+            }
+            // Запись в файл новый порядок чисел (максимально повторяющееся число после всех остальных)
+            for (Integer number : listNumbers) {
+                if (number != maxRepNumber) {
+                    writer.write(String.valueOf(number));
+                    writer.write("\n");
+                }
+            }
+            for (int i = 0; i < maxReps; i++) {
+                writer.write(String.valueOf(maxRepNumber));
                 writer.write("\n");
             }
         }
-        for (int i = 0; i < maxReps; i++) {
-            writer.write(String.valueOf(maxRepNumber));
-            writer.write("\n");
-        }
-        writer.close();
     }
     // Трудоёмкость - O(n)
     // Ресурсоёмкость - O(n)
