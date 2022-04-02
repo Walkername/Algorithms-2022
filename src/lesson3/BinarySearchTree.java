@@ -22,6 +22,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     private int size = 0;
 
+    private boolean deletionResult; // for the remove method
+
     @Override
     public int size() {
         return size;
@@ -44,6 +46,15 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         else {
             if (start.right == null) return start;
             return find(start.right, value);
+        }
+    }
+
+    public Node<T> minimumValue(Node<T> root) {
+        if (root.left == null) {
+            return new Node<>(root.value);
+        }
+        else {
+            return minimumValue(root.left);
         }
     }
 
@@ -101,9 +112,52 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        deletionResult = false;
+        T delValue = (T) o;
+        root = removeAt(root, delValue);
+        return deletionResult;
     }
+
+    public Node<T> removeAt(Node<T> root, T value) {
+        if (root == null) {
+            return null;
+        }
+        // Start searching for a node
+        int difference = value.compareTo(root.value);
+        if (difference < 0) {
+            root.left = removeAt(root.left, value);
+        }
+        else if (difference > 0) {
+            root.right = removeAt(root.right, value);
+        }
+        else { // if (difference == 0) => Node found
+            if (!deletionResult) {
+                size--;
+                deletionResult = true; // Flag asserting the remove operation
+            }
+            if (root.left == null && root.right == null) { // If there are no children
+                root = null;
+            }
+            else if (root.left != null && root.right != null) { // If there are two children
+                Node<T> rootLeft = root.left;
+                Node<T> rootRight = root.right;
+                root = minimumValue(root.right); // Node Replacement
+                root.left = rootLeft;
+                root.right = removeAt(rootRight, root.value);
+            }
+            else if (root.left != null) { // If there is only left children
+                root = root.left;
+            }
+            else { // if (root.right != null) => If there is only right children
+                root = root.right;
+            }
+        }
+        return root;
+    }
+    // h - высота дерева (самый длинный путь к листу)
+    // Трудоёмкость - O(h)
+    // n - путь к удаляемому узлу
+    // Ресурсоёмкость - O(n)
 
     @Nullable
     @Override
