@@ -279,9 +279,7 @@ abstract class AbstractBinarySearchTreeTest {
         implementationTest { create().iterator().remove() }
         val controlSet = TreeSet<Int>()
         for (iteration in 1..1000 step 11) {
-            val set2 = HashSet<Int>()
-            set2.add(iteration)
-            controlSet.addAll(set2)
+            controlSet.add(iteration)
             val toRemove = 44 + iteration
             println("Initial set: $controlSet")
             val binarySet = create()
