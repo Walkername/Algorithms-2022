@@ -49,7 +49,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         }
     }
 
-    public Node<T> minimumValue(Node<T> root) {
+    private Node<T> minimumValue(Node<T> root) {
         if (root.left == null) {
             return new Node<>(root.value);
         }
@@ -118,7 +118,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         return deletionResult;
     }
 
-    public Node<T> removeAt(Node<T> root, T value) {
+    private Node<T> removeAt(Node<T> root, T value) {
         if (root == null) {
             return null;
         }
@@ -168,13 +168,15 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return new BinarySearchTreeIterator();
+        return new BinarySearchTreeIterator(root);
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
+        Stack<Node<T>> stack = new Stack<>();
+        T currentRootValue;
 
-        private BinarySearchTreeIterator() {
-            // Добавьте сюда инициализацию, если она необходима.
+        private BinarySearchTreeIterator(Node<T> root) {
+            pushToStack(root);
         }
 
         /**
@@ -189,9 +191,10 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
+            return !stack.empty();
         }
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
 
         /**
          * Получение следующего элемента
@@ -208,9 +211,31 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Node<T> root = stack.pop();
+            currentRootValue = root.value;
+            pushToStack(root.right);
+            return root.value;
         }
+        // n - количество узлов
+        // Трудоёмкость - O(log(n))
+        // Ресурсоёмкость - O(log(n))
+
+        /**
+         * Функция ищет наименьший узел в поддереве, который больше узла,
+         * рассматриваемого в методе next() и ставит его на вершину стека.
+         * Т.е. выдаёт по окончании работы следующий узел.
+         */
+        private void pushToStack(Node<T> root) {
+            if (root != null) {
+                stack.push(root);
+                pushToStack(root.left);
+            }
+        }
+        // Трудоёмкость - O(log(n))
+        // Ресурсоёмкость - O(log(n))
 
         /**
          * Удаление предыдущего элемента
@@ -226,10 +251,15 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            if (currentRootValue == null) {
+                throw new IllegalStateException();
+            }
+            BinarySearchTree.this.remove(currentRootValue);
+            currentRootValue = null;
         }
     }
+    // Трудоёмкость - O(n)
+    // Ресурсоёмкость - O(n)
 
     /**
      * Подмножество всех элементов в диапазоне [fromElement, toElement)
