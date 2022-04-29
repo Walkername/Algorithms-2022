@@ -1,7 +1,7 @@
 package lesson4;
 
 import java.util.*;
-import kotlin.NotImplementedError;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,8 +92,59 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     @NotNull
     @Override
     public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new TrieIterator(root);
     }
 
+    public class TrieIterator implements  Iterator<String> {
+        Stack<String> stack = new Stack<>();
+        String currentString;
+
+        private TrieIterator(Node root) {
+            pushToStack(root, "");
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !stack.empty();
+        }
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
+
+        @Override
+        public String next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            currentString = stack.pop();
+            return currentString;
+        }
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
+
+        @Override
+        public void remove() {
+            if (currentString == null) {
+                throw new IllegalStateException();
+            }
+            Trie.this.remove(currentString);
+            currentString = null;
+        }
+        // Трудоёмкость - O(string length)
+        // Ресурсоёмкость - O(string length)
+
+        private void pushToStack(Node root, String key) {
+            Set<Character> set = new HashSet<>(root.children.keySet());
+            for (char child: set) {
+                if (child == '\0') {
+                    stack.push(key);
+                }
+                else {
+                    pushToStack(root.children.get(child), key + child);
+                }
+            }
+        }
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(n)
+
+    }
 }

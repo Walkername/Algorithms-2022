@@ -24,6 +24,7 @@ class TrieTest : AbstractTrieTest() {
     @Tag("8")
     fun iteratorRemoveTestJava() {
         doIteratorRemoveTest()
+        doIteratorRemoveTestManually()
     }
 
 }

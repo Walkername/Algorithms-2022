@@ -173,4 +173,65 @@ abstract class AbstractTrieTest {
         }
     }
 
+    protected fun doIteratorRemoveTestManually() {
+        implementationTest { create().iterator().remove() }
+        val random = Random()
+        for (iteration in 1..1000 step 11) {
+            val controlSet = mutableSetOf<String>()
+            val removeIndex = random.nextInt(15) + 1
+            var toRemove = ""
+            for (i in 1..15) {
+                val string = random.nextString("polytech", 1, 15)
+                controlSet.add(string)
+                if (i == removeIndex) {
+                    toRemove = string
+                }
+            }
+            println("Initial set: $controlSet")
+            val trieSet = create()
+            for (element in controlSet) {
+                trieSet += element
+            }
+            controlSet.remove(toRemove)
+            println("Control set: $controlSet")
+            println("Removing element \"$toRemove\" from trie set through the iterator...")
+            val iterator = trieSet.iterator()
+            assertFailsWith<IllegalStateException>("Something was supposedly deleted before the iteration started") {
+                iterator.remove()
+            }
+            var counter = trieSet.size
+            while (iterator.hasNext()) {
+                val element = iterator.next()
+                counter--
+                if (element == toRemove) {
+                    iterator.remove()
+                    assertFailsWith<IllegalStateException>("Trie.remove() was successfully called twice in a row.") {
+                        iterator.remove()
+                    }
+                }
+            }
+            assertEquals(
+                0, counter,
+                "TrieIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
+            )
+            assertEquals(
+                controlSet.size, trieSet.size,
+                "The size of the set is incorrect: was ${trieSet.size}, should've been ${controlSet.size}."
+            )
+            for (element in controlSet) {
+                assertTrue(
+                    trieSet.contains(element),
+                    "Trie set doesn't have the element $element from the control set."
+                )
+            }
+            for (element in trieSet) {
+                assertTrue(
+                    controlSet.contains(element),
+                    "Trie set has the element $element that is not in control set."
+                )
+            }
+            println("All clear!")
+        }
+    }
+
 }
