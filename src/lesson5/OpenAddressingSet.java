@@ -1,10 +1,10 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
@@ -16,6 +16,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     private final Object[] storage;
 
     private int size = 0;
+
+    private final Object deleted = new Object();
 
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
@@ -95,8 +97,20 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        int ind = startingIndex(o);
+        int start = ind;
+        do {
+            if (storage[ind].equals(o)) {
+                storage[ind] = deleted;
+                size--;
+                return true;
+            }
+            ind = (ind + 1) % capacity;
+        } while (ind != start && storage[ind] != null);
+        return false;
     }
+    // Трудоёмкость - O(1/(1-A)), где A = size/capacity.
+    // Ресурсоёмкость - O(1)
 
     /**
      * Создание итератора для обхода таблицы
@@ -111,7 +125,50 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OpenAddressingSetIterator();
+    }
+
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        int sizeIterator = size();
+        int indexIterator = 0;   // Индекс итератора по всей таблице (с учётом null)
+        int indexRealElement = 0; // Индекс (номер) элемента в таблице (элемент, не равный null)
+        Object currentValue;
+
+        @Override
+        public boolean hasNext() {
+            if (sizeIterator == 0) {
+                return false;
+            }
+            return indexRealElement != sizeIterator;
+        }
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            do {
+                currentValue = storage[indexIterator];
+                indexIterator++;
+            } while (currentValue == null || currentValue == deleted);
+            indexRealElement++;
+            return (T) currentValue;
+        }
+        // Трудоёмкость - O(n)
+        // Ресурсоёмкость - O(1)
+
+        @Override
+        public void remove() {
+            if (currentValue == null) {
+                throw new IllegalStateException();
+            }
+            storage[indexIterator - 1] = deleted;
+            size--;
+            currentValue = null;
+        }
+        // Трудоёмкость - O(1)
+        // Ресурсоёмкость - O(1)
     }
 }
