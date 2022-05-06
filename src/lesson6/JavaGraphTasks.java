@@ -2,8 +2,7 @@ package lesson6;
 
 import kotlin.NotImplementedError;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaGraphTasks {
@@ -116,10 +115,35 @@ public class JavaGraphTasks {
      * J ------------ K
      *
      * Ответ: A, E, J, K, D, C, H, G, B, F, I
+     *        D, K, J, E, A, B, G, H, C, I, F
      */
     public static Path longestSimplePath(Graph graph) {
-        throw new NotImplementedError();
+        Deque<Path> queuePaths = new ArrayDeque<>();
+        for (Graph.Vertex vertex: graph.getVertices()) {
+            queuePaths.push(new Path(vertex));              // put all vertices in a queue as class Path(vertex)
+        }
+        Path maxSimplePath = new Path();    // \ initialization of variable for future return
+        int maxLength = 0;                  // /
+        // empty the queue until all possible paths have been checked
+        while (!queuePaths.isEmpty()) {
+            Path currentPath = queuePaths.pop();        // getting new path or unfinished path
+            if (currentPath.getLength() > maxLength) {  // comparison of current and max paths
+                maxSimplePath = currentPath;
+                maxLength = currentPath.getLength();
+            }
+            // continuation of path due to pushing of neighbours in queue
+            for (Graph.Vertex neighbour: graph.getNeighbors(currentPath.getVertices().get(currentPath.getLength()))) {
+                if (!currentPath.contains(neighbour)) {
+                    queuePaths.push(new Path(currentPath, graph, neighbour));
+                }
+            }
+        }
+        return maxSimplePath;
     }
+    // Трудоемкость - O(P*N), P - paths, N - neighbours of current vertex
+    // Ресурсоемкость - O(V^2), V - vertices.
+    // queuePaths contains all paths (number of paths = the number of vertices) | \
+    // Each path contains all vertices.                                         | / O(V) * O(V) = O(V^2)
 
 
     /**
