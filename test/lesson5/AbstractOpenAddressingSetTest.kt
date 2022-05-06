@@ -81,7 +81,7 @@ abstract class AbstractOpenAddressingSetTest {
 
     protected fun doRemoveTestManually() {
         val random = Random()
-        val bitsNumber = random.nextInt(7) + 3
+        val bitsNumber = random.nextInt(7) + 6
         val openAddressingSet = create<Int>(bitsNumber)
         for (i in 1..50) {
             val firstInt = random.nextInt(32)
@@ -218,9 +218,9 @@ abstract class AbstractOpenAddressingSetTest {
     protected fun doIteratorRemoveTestManually() {
         val random = Random()
         val controlSet = mutableSetOf<String>()
-        val removeIndex = random.nextInt(9) + 1
+        val removeIndex = random.nextInt(15) + 1
         var toRemove = ""
-        for (i in 1..30) {
+        for (i in 1..15) {
             val string = random.nextString("polytech20202024", 1, 15)
             controlSet.add(string)
             if (i == removeIndex) {

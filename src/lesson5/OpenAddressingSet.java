@@ -43,12 +43,16 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @Override
     public boolean contains(Object o) {
         int index = startingIndex(o);
+        int start = index;
         Object current = storage[index];
         while (current != null) {
             if (current.equals(o)) {
                 return true;
             }
             index = (index + 1) % capacity;
+            if (index == start) {
+                return false;
+            }
             current = storage[index];
         }
         return false;
@@ -69,7 +73,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != deleted) {
             if (current.equals(t)) {
                 return false;
             }
@@ -99,14 +103,19 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     public boolean remove(Object o) {
         int ind = startingIndex(o);
         int start = ind;
-        do {
-            if (storage[ind].equals(o)) {
+        Object current = storage[ind];
+        while (current != null) {
+            if (current.equals(o)) {
                 storage[ind] = deleted;
                 size--;
                 return true;
             }
             ind = (ind + 1) % capacity;
-        } while (ind != start && storage[ind] != null);
+            if (ind == start) {
+                return false;
+            }
+            current = storage[ind];
+        }
         return false;
     }
     // Трудоёмкость - O(1/(1-A)), где A = size/capacity.
