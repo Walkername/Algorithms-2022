@@ -1,6 +1,7 @@
 package lesson6;
 
 import kotlin.NotImplementedError;
+import lesson6.impl.GraphBuilder;
 
 import java.util.*;
 
@@ -65,8 +66,25 @@ public class JavaGraphTasks {
      * J ------------ K
      */
     public static Graph minimumSpanningTree(Graph graph) {
-        throw new NotImplementedError();
+        GraphBuilder spanningTree = new GraphBuilder();
+        Set<Graph.Vertex> set = new HashSet<>();
+        for (Graph.Vertex vertex : graph.getVertices()) {
+            if (set.isEmpty()) {
+                set.add(vertex);
+            }
+            for (Graph.Vertex neighbour : graph.getNeighbors(vertex)) {
+                if (!set.contains(neighbour)) {
+                    set.add(neighbour);
+                    spanningTree.addVertex(vertex.getName());
+                    spanningTree.addVertex(neighbour.getName());
+                    spanningTree.addConnection(vertex, neighbour, 1);
+                }
+            }
+        }
+        return spanningTree.build();
     }
+    // Трудоеёмкость - O(V+E), V - vertices, E - edges
+    // Ресурсоёмкость - O(V), V - vertices
 
     /**
      * Максимальное независимое множество вершин в графе без циклов.
@@ -140,9 +158,9 @@ public class JavaGraphTasks {
         }
         return maxSimplePath;
     }
-    // Трудоемкость - O(P*N), P - paths, N - neighbours of current vertex
+    // Трудоемкость - O(V) + O(V+E) = O(V+E)
     // Ресурсоемкость - O(V^2), V - vertices.
-    // queuePaths contains all paths (number of paths = the number of vertices) | \
+    // queuePaths contains all paths (number of paths = number of vertices) | \
     // Each path contains all vertices.                                         | / O(V) * O(V) = O(V^2)
 
 
